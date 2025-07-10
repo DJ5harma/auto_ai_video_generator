@@ -5,6 +5,8 @@ import { ImageGenService } from "./services/gen/ImageGenService.js";
 import { VideoService } from "./services/VideoService.js";
 import { SpeechGenService } from "./services/gen/SpeechGenService.js";
 import { sleep } from "./utils/sleep.js";
+import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
+
 config();
 
 export const { GEMINI_API_KEY_1, GEMINI_API_KEY_2 } = process.env;
@@ -19,7 +21,7 @@ console.log("Starting automatic video generation....");
 
 const REFRESH_TIME_IN_SECONDS = 60 + 10; // +10 just to be safe
 
-async function run({ prompt, isPortrait }) {
+async function run({ prompt, isPortrait, voiceName }) {
 	const { sections, title, description, tags } =
 		await textGenService.generateJson(getPreparedPromptFrom(prompt));
 
@@ -28,7 +30,10 @@ async function run({ prompt, isPortrait }) {
 		completeString += section + " ";
 	});
 
-	await speechGenService.convertTextToSpeech(completeString);
+	await speechGenService.convertTextToSpeech({
+		prompt: completeString,
+		voiceName,
+	});
 
 	for (let i = 0; i < sections.length; i += 10) {
 		const batch = sections.slice(i, i + 10);
@@ -58,7 +63,7 @@ async function run({ prompt, isPortrait }) {
 
 	await videoService.generateVideoWithImagesAndAudio({
 		sections,
-		outputFile: "output.wav",
+		outputFile: "output.mp4",
 		isPortrait,
 	});
 
@@ -66,16 +71,20 @@ async function run({ prompt, isPortrait }) {
 }
 
 try {
-	// await run();
+	await run({
+		prompt: PROMPTS.SHORT_VIDEO.HORROR,
+		isPortrait: true,
+		voiceName: "Kore",
+	});
 } catch (error) {
 	console.log(error);
 }
 
-import { sampleSections } from "./samples/sampleSections.js";
-import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
-videoService.generateVideoWithImagesAndAudio({
-	sections: sampleSections,
-	isPortrait: false,
-	outputFile: "output.mp4",
-});
-console.log(sampleSections.length);
+// import { sampleSections } from "./samples/sampleSections.js";
+// import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
+// videoService.generateVideoWithImagesAndAudio({
+// 	sections: sampleSections,
+// 	isPortrait: false,
+// 	outputFile: "output.mp4",
+// });
+// console.log(sampleSections.length);
