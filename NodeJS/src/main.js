@@ -21,7 +21,7 @@ const REFRESH_TIME_IN_SECONDS = 60 + 10; // +10 just to be safe
 
 async function run() {
 	const { sections } = await textGenService.generateJson(
-		PROMPTS.getRandomPrompt()
+		getPreparedPromptFrom(PROMPTS.NORMAL_VIDEO)
 	);
 
 	let completeString = "";
@@ -69,5 +69,9 @@ try {
 }
 
 import { sampleSections } from "./samples/sampleSections.js";
+import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
 videoService.generateVideoWithImagesAndAudio(sampleSections);
 console.log(sampleSections.length);
+
+
+PR

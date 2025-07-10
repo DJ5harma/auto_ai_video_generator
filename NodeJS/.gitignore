@@ -5,3 +5,7 @@ node_modules
 *.wav
 *.mp4
 list.txt
+
+# youtube 
+client_secret*.json
+token*.json
