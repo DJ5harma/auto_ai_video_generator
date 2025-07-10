@@ -4,10 +4,10 @@ node_modules
 *.png
 *.wav
 *.mp4
-list.txt
+[0-9]*.json
+temp_frames
 
 # youtube 
 client_secret*.json
 token*.json
-temp_frames
-*.py
+

@@ -5,9 +5,10 @@ import { execSync } from "child_process";
 const audioPath = path.join(process.cwd(), "data", "audio.wav");
 const tempDir = path.join(process.cwd(), "data", "temp_frames");
 const imagesDir = path.join(process.cwd(), "data", "images");
+const videossDir = path.join(process.cwd(), "data", "videos");
 
 export class VideoService {
-	async generateVideoWithImagesAndAudio({ sections, outputFile, isPortrait }) {
+	async generateVideoWithImagesAndAudio({ sections, outputPath, isPortrait }) {
 		const TRANSITION_DURATION = 1; // seconds
 
 		console.log("🎞️ Creating video from images and audio - VideoService");
@@ -18,6 +19,10 @@ export class VideoService {
 		const WIDTH = isPortrait ? 720 : 1280;
 		const HEIGHT = isPortrait ? 1280 : 720;
 
+
+		// ensure videos directory
+		fs.mkdirSync(videossDir, { recursive: true });
+		
 		// Clean temp directory
 		fs.rmSync(tempDir, { recursive: true, force: true });
 		fs.mkdirSync(tempDir, { recursive: true });
@@ -36,7 +41,8 @@ export class VideoService {
 		// Step 1: Generate per-image video clips
 		const inputVideos = [];
 		for (let i = 0; i < imageCount; i++) {
-			const clipDuration = durations[i] + (i < imageCount - 1 ? TRANSITION_DURATION : 0);
+			const clipDuration =
+				durations[i] + (i < imageCount - 1 ? TRANSITION_DURATION : 0);
 			const imagePath = path.join(imagesDir, `image${i}.png`);
 			const tempVideo = path.join(tempDir, `clip${i}.mp4`);
 			inputVideos.push(tempVideo);
@@ -71,7 +77,8 @@ export class VideoService {
 
 		// Step 3: Extend video duration if shorter than audio
 		const totalVideoDuration =
-			durations.reduce((acc, t) => acc + t, 0) + TRANSITION_DURATION * (imageCount - 1);
+			durations.reduce((acc, t) => acc + t, 0) +
+			TRANSITION_DURATION * (imageCount - 1);
 		let finalVideoPath = mergedVideoPath;
 
 		if (audioDuration > totalVideoDuration) {
@@ -88,7 +95,10 @@ export class VideoService {
 			const concatListPath = path.join(tempDir, "concat.txt");
 			fs.writeFileSync(
 				concatListPath,
-				`file '${mergedVideoPath.replace(/\\/g, "/")}'\nfile '${blackFramePath.replace(/\\/g, "/")}'`
+				`file '${mergedVideoPath.replace(
+					/\\/g,
+					"/"
+				)}'\nfile '${blackFramePath.replace(/\\/g, "/")}'`
 			);
 
 			execSync(
@@ -99,14 +109,13 @@ export class VideoService {
 		}
 
 		// Step 4: Combine with audio
-		const finalOutputPath = path.join(process.cwd(), "data", outputFile);
 		execSync(
-			`ffmpeg -y -i "${finalVideoPath}" -i "${audioPath}" -c:v copy -c:a aac -shortest "${finalOutputPath}"`
+			`ffmpeg -y -i "${finalVideoPath}" -i "${audioPath}" -c:v copy -c:a aac -shortest "${outputPath}"`
 		);
 
 		console.log(
 			isPortrait ? "Portrait" : "Landscape",
-			` video generated at: ${finalOutputPath} - VideoService`
+			` video generated at: ${outputPath} - VideoService`
 		);
 	}
 }

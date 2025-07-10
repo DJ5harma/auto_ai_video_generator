@@ -6,8 +6,9 @@ import { VideoService } from "./services/VideoService.js";
 import { SpeechGenService } from "./services/gen/SpeechGenService.js";
 import { sleep } from "./utils/sleep.js";
 import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
-
-config();
+import fs from "fs";
+import path from "path";
+config({ quiet: true });
 
 export const { GEMINI_API_KEY_1, GEMINI_API_KEY_2 } = process.env;
 
@@ -20,19 +21,31 @@ const videoService = new VideoService();
 console.log("Starting automatic video generation....");
 
 const REFRESH_TIME_IN_SECONDS = 60 + 10; // +10 just to be safe
+const imagesDir = path.join(process.cwd(), "data", "images");
 
-async function run({ prompt, isPortrait, voiceName }) {
+// ensure data directory
+fs.mkdirSync(path.join(process.cwd(), "data"), { recursive: true });
+
+async function run({ prompt, isPortrait, voiceName, languageCode }) {
 	const { sections, title, description, tags } =
-		await textGenService.generateJson(getPreparedPromptFrom(prompt));
+		await textGenService.generateJson({
+			prompt: getPreparedPromptFrom(
+				prompt + `. In languageCode: ${languageCode}`
+			),
+		});
 
 	let completeString = "";
 	sections.forEach(({ section }) => {
 		completeString += section + " ";
 	});
 
+	fs.rmSync(imagesDir, { recursive: true, force: true });
+	fs.mkdirSync(imagesDir, { recursive: true });
+
 	await speechGenService.convertTextToSpeech({
 		prompt: completeString,
 		voiceName,
+		languageCode,
 	});
 
 	for (let i = 0; i < sections.length; i += 10) {
@@ -41,12 +54,16 @@ async function run({ prompt, isPortrait, voiceName }) {
 		// Get 10 image generation promises in parallel
 		const promises = batch.map((item, j) => {
 			const index = i + j;
-			return imageGenService.generateImage(
-				`Generate ${
-					isPortrait ? "9:16" : "16:9"
-				} image according to this theme without subtitles: ` + item.section,
-				`image${index}.png`
-			);
+			return imageGenService.generateImage({
+				prompt:
+					`Generate a ${
+						isPortrait ? "9:16" : "16:9"
+					} image according to this theme: ` +
+					item.section +
+					` DO NOT WRITE ANY TEXT ON THE IMAGE`,
+				imageName: `image${index}.png`,
+				retries_left: 5,
+			});
 		});
 
 		// Wait for all 10 to finish
@@ -61,30 +78,34 @@ async function run({ prompt, isPortrait, voiceName }) {
 		}
 	}
 
+	const videoID = Date.now();
 	await videoService.generateVideoWithImagesAndAudio({
 		sections,
-		outputFile: "output.mp4",
+		outputPath: path.join(process.cwd(), "data", "videos", `output.mp4`),
 		isPortrait,
 	});
 
-	console.log({ title, description, tags });
+	const videoMetadataJson = {
+		title,
+		description,
+		tags,
+		isPortrait,
+	};
+
+	fs.writeFileSync(
+		path.join(process.cwd(), "data", "videos", `${videoID}.json`),
+		JSON.stringify(videoMetadataJson)
+	);
+	console.log(videoMetadataJson);
 }
 
 try {
 	await run({
 		prompt: PROMPTS.SHORT_VIDEO.HORROR,
 		isPortrait: true,
-		voiceName: "Kore",
+		voiceName: "Leda",
+		languageCode: "en-US", // en-US | hi-IN
 	});
 } catch (error) {
 	console.log(error);
 }
-
-// import { sampleSections } from "./samples/sampleSections.js";
-// import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
-// videoService.generateVideoWithImagesAndAudio({
-// 	sections: sampleSections,
-// 	isPortrait: false,
-// 	outputFile: "output.mp4",
-// });
-// console.log(sampleSections.length);

@@ -9,7 +9,7 @@ import open from "open";
 // const TOKEN_PATH = "token.json";
 
 export class YoutubeUploadService {
-	constructor(client_secret_path, token_path) {
+	constructor({ client_secret_path, token_path }) {
 		this.client_secret_path = client_secret_path;
 		this.token_path = token_path;
 		this.SCOPES = ["https://www.googleapis.com/auth/youtube.upload"];

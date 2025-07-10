@@ -34,7 +34,15 @@ export class SpeechGenService {
 		});
 	}
 
-	async convertTextToSpeech({ prompt, voiceName }) {
+	async convertTextToSpeech({
+		prompt,
+		voiceName,
+		languageCode,
+		retries_left = 3,
+	}) {
+		if (retries_left === 0) {
+			throw new Error();
+		}
 		try {
 			console.log(
 				`Generating text to speech for ${prompt.length} characters... -SpeechGenService`
@@ -49,6 +57,7 @@ export class SpeechGenService {
 						voiceConfig: {
 							prebuiltVoiceConfig: { voiceName },
 						},
+						languageCode,
 					},
 				},
 			});
@@ -59,8 +68,15 @@ export class SpeechGenService {
 
 			console.log("Generated speech! -SpeechGenService");
 			await this.#saveWaveFile(audioBuffer);
-		} catch (error) {
-			console.log(error);
+		} catch ({ message }) {
+			console.log(message);
+			console.log("Will retry", retries_left, "times");
+			return await this.convertTextToSpeech({
+				prompt,
+				voiceName,
+				languageCode,
+				retries_left: retries_left - 1,
+			});
 		}
 	}
 }
