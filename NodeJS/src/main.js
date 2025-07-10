@@ -1,5 +1,4 @@
 import { config } from "dotenv";
-// import { sampleSections } from "./samples/sampleSections.js";
 import { PROMPTS } from "./utils/prompts.js";
 import { TextGenService } from "./services/gen/TextGenService.js";
 import { ImageGenService } from "./services/gen/ImageGenService.js";
@@ -21,7 +20,9 @@ console.log("Starting automatic video generation....");
 const REFRESH_TIME_IN_SECONDS = 60 + 10; // +10 just to be safe
 
 async function run() {
-	const { sections } = await textGenService.generateJson(PROMPTS.story);
+	const { sections } = await textGenService.generateJson(
+		PROMPTS.getRandomPrompt()
+	);
 
 	let completeString = "";
 	sections.forEach(({ section }) => {
@@ -37,7 +38,8 @@ async function run() {
 		const promises = batch.map((item, j) => {
 			const index = i + j;
 			return imageGenService.generateImage(
-				"Generate 16:9 image according to this theme: " + item.section,
+				"Generate 16:9 image according to this theme without subtitles: " +
+					item.section,
 				`image${index}.png`
 			);
 		});
@@ -61,28 +63,11 @@ async function run() {
 }
 
 try {
-	await run();
+	// await run();
 } catch (error) {
 	console.log(error);
 }
 
-// // .thens
-// textGenService.generateJson(PROMPTS.story).then(async ({ sections }) => {
-// 	let completeString = "";
-// 	sections.forEach(({ section }) => {
-// 		completeString += section + " ";
-// 	});
-// 	speechGenService.convertTextToSpeech(completeString).then(async () => {
-// 		for (let i = 0; i < sections.length; ++i) {
-// 			const { section } = sections[i];
-// 			await imageGenService.generateImage(
-// 				"Generate 16:9 image according to this theme: " + section,
-// 				`image${i}.png`
-// 			);
-// 		}
-// 		videoService.generateVideoWithImagesAndAudio(
-// 			sections.length,
-// 			sections.map(({ time }) => time)
-// 		);
-// 	});
-// });
+import { sampleSections } from "./samples/sampleSections.js";
+videoService.generateVideoWithImagesAndAudio(sampleSections);
+console.log(sampleSections.length);
