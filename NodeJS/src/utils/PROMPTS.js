@@ -19,5 +19,3 @@ export const PROMPTS = {
         `,
 	},
 };
-
-console.log(PROMPTS.list.length);

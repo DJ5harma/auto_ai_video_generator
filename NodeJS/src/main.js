@@ -19,10 +19,9 @@ console.log("Starting automatic video generation....");
 
 const REFRESH_TIME_IN_SECONDS = 60 + 10; // +10 just to be safe
 
-async function run() {
-	const { sections } = await textGenService.generateJson(
-		getPreparedPromptFrom(PROMPTS.NORMAL_VIDEO)
-	);
+async function run({ prompt, isPortrait }) {
+	const { sections, title, description, tags } =
+		await textGenService.generateJson(getPreparedPromptFrom(prompt));
 
 	let completeString = "";
 	sections.forEach(({ section }) => {
@@ -38,8 +37,9 @@ async function run() {
 		const promises = batch.map((item, j) => {
 			const index = i + j;
 			return imageGenService.generateImage(
-				"Generate 16:9 image according to this theme without subtitles: " +
-					item.section,
+				`Generate ${
+					isPortrait ? "9:16" : "16:9"
+				} image according to this theme without subtitles: ` + item.section,
 				`image${index}.png`
 			);
 		});
@@ -56,10 +56,13 @@ async function run() {
 		}
 	}
 
-	await videoService.generateVideoWithImagesAndAudio(
-		sections.length,
-		sections.map(({ time }) => time)
-	);
+	await videoService.generateVideoWithImagesAndAudio({
+		sections,
+		outputFile: "output.wav",
+		isPortrait,
+	});
+
+	console.log({ title, description, tags });
 }
 
 try {
@@ -70,8 +73,9 @@ try {
 
 import { sampleSections } from "./samples/sampleSections.js";
 import { getPreparedPromptFrom } from "./utils/getPreparedPromptFrom.js";
-videoService.generateVideoWithImagesAndAudio(sampleSections);
+videoService.generateVideoWithImagesAndAudio({
+	sections: sampleSections,
+	isPortrait: false,
+	outputFile: "output.mp4",
+});
 console.log(sampleSections.length);
-
-
-PR

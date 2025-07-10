@@ -23,12 +23,12 @@ export class YoutubeUploadService {
 		tags = []
 	) {
 		const credentials = JSON.parse(fs.readFileSync(this.client_secret_path));
-		const auth = await this._authorize(credentials);
-		await this._uploadVideo(auth, videoPath, title, description, privacy, tags);
+		const auth = await this.#authorize(credentials);
+		await this.#uploadVideo(auth, videoPath, title, description, privacy, tags);
 		console.log("uploading", videoPath);
 	}
 
-	async _authorize(credentials) {
+	async #authorize(credentials) {
 		const { client_secret, client_id, redirect_uris } = credentials.installed;
 		const oAuth2Client = new google.auth.OAuth2(
 			client_id,
@@ -50,7 +50,7 @@ export class YoutubeUploadService {
 		console.log("Authorize this app by visiting this URL:\n", authUrl);
 		await open(authUrl);
 
-		const code = await this._promptCode("Enter the code from that page here: ");
+		const code = await this.#promptCode("Enter the code from that page here: ");
 		const { tokens } = await oAuth2Client.getToken(code);
 		oAuth2Client.setCredentials(tokens);
 
@@ -60,7 +60,7 @@ export class YoutubeUploadService {
 		return oAuth2Client;
 	}
 
-	_promptCode(question) {
+	#promptCode(question) {
 		return new Promise((resolve) => {
 			const rl = readline.createInterface({
 				input: process.stdin,
@@ -73,7 +73,7 @@ export class YoutubeUploadService {
 		});
 	}
 
-	async _uploadVideo(auth, filePath, title, description, privacy, tags) {
+	async #uploadVideo(auth, filePath, title, description, privacy, tags) {
 		const youtube = google.youtube({ version: "v3", auth });
 
 		const requestBody = {
