@@ -8,14 +8,14 @@ export const PROMPTS = {
 	},
 	SHORT_VIDEO: {
 		HORROR: `
-            Write a dark and atmospheric horror content for a short video (50 seconds at max). 
+            Write a dark and atmospheric horror content for a short video for a 1 minute short video. 
             The content should focus on psychological fear, build tension slowly, and include a chilling twist. 
             It must be written in the first person to feel personal and immersive. You have the liberty to think of anything out of the box as much as you want...
         `,
 		DARK_COMEDY: `
-            Write a dark, comedic and thriller content for a short video (50 seconds at max). 
+            Write a dark, comedic and thriller content for a short video for a 1 minute short video. 
             The content should burst anybody into uncontrollable laughter, have a chilling twist. 
-            You have the liberty to think of anything out of the box as much as you you want...
+            You have the liberty to think of anything out of the box as much as you want...
         `,
 	},
 };

@@ -7,6 +7,7 @@ export function getPreparedPromptFrom(prompt) {
             description: "some description",
             tags: ["tag1, tag2", ...]
         }
-        Make sure the output has no explanation or formatting, just valid JSON.`;
+        Make sure the output has no explanation or formatting, just valid JSON.
+        NOTE: I will concatenate each "section" and give to a TTS directly to narrate, so keep that in mind and only add what the narrator should speak...`;
 	return str;
 }

@@ -58,9 +58,9 @@ async function run({ prompt, isPortrait, voiceName, languageCode }) {
 				prompt:
 					`Generate a ${
 						isPortrait ? "9:16" : "16:9"
-					} image which fits to this scenario: ` +
+					} image which fits to this scenario:\n` +
 					item.section 
-					// + ` DO NOT WRITE ANY TEXT ON THE IMAGE`
+					// + `\nADD SUBTITLES!`
 					,
 				imageName: `image${index}.png`,
 				retries_left: 5,
@@ -102,10 +102,10 @@ async function run({ prompt, isPortrait, voiceName, languageCode }) {
 
 try {
 	await run({
-		prompt: PROMPTS.SHORT_VIDEO.HORROR,
+		prompt: PROMPTS.SHORT_VIDEO.DARK_COMEDY,
 		isPortrait: true,
 		voiceName: "Leda",
-		languageCode: "en-US", // en-US | hi-IN
+		languageCode: "hi-IN", // en-US | hi-IN
 	});
 } catch (error) {
 	console.log(error);
