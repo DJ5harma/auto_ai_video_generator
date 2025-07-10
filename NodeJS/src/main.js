@@ -58,9 +58,10 @@ async function run({ prompt, isPortrait, voiceName, languageCode }) {
 				prompt:
 					`Generate a ${
 						isPortrait ? "9:16" : "16:9"
-					} image according to this theme: ` +
-					item.section +
-					` DO NOT WRITE ANY TEXT ON THE IMAGE`,
+					} image which fits to this scenario: ` +
+					item.section 
+					// + ` DO NOT WRITE ANY TEXT ON THE IMAGE`
+					,
 				imageName: `image${index}.png`,
 				retries_left: 5,
 			});
@@ -81,7 +82,7 @@ async function run({ prompt, isPortrait, voiceName, languageCode }) {
 	const videoID = Date.now();
 	await videoService.generateVideoWithImagesAndAudio({
 		sections,
-		outputPath: path.join(process.cwd(), "data", "videos", `output.mp4`),
+		outputPath: path.join(process.cwd(), "data", "videos", `${videoID}.mp4`),
 		isPortrait,
 	});
 

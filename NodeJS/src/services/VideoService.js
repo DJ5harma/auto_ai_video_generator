@@ -8,35 +8,48 @@ const imagesDir = path.join(process.cwd(), "data", "images");
 const videossDir = path.join(process.cwd(), "data", "videos");
 
 export class VideoService {
+	#getAudioDuration = () => {
+		const output = execSync(
+			`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioPath}"`
+		)
+			.toString()
+			.trim();
+		return parseFloat(output);
+	};
+
+	#getTotalTimeFromSections({ sections }) {
+		let sum = 0;
+		sections.forEach(({ time }) => {
+			sum += time;
+		});
+		return sum;
+	}
+
 	async generateVideoWithImagesAndAudio({ sections, outputPath, isPortrait }) {
 		const TRANSITION_DURATION = 1; // seconds
 
 		console.log("🎞️ Creating video from images and audio - VideoService");
 
-		const durations = sections.map(({ time }) => time);
+		const audioDuration = this.#getAudioDuration();
+
+		const totalTimeFromSections = this.#getTotalTimeFromSections({ sections });
+		const durations = sections.map(
+			({ time }) => (time * audioDuration) / totalTimeFromSections
+		); // stretching images to get eql in duration (in total) with the audio
+		
 		const imageCount = sections.length;
 
 		const WIDTH = isPortrait ? 720 : 1280;
 		const HEIGHT = isPortrait ? 1280 : 720;
 
-
 		// ensure videos directory
 		fs.mkdirSync(videossDir, { recursive: true });
-		
+
 		// Clean temp directory
 		fs.rmSync(tempDir, { recursive: true, force: true });
 		fs.mkdirSync(tempDir, { recursive: true });
 
 		// Get audio duration
-		const getAudioDuration = () => {
-			const output = execSync(
-				`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioPath}"`
-			)
-				.toString()
-				.trim();
-			return parseFloat(output);
-		};
-		const audioDuration = getAudioDuration();
 
 		// Step 1: Generate per-image video clips
 		const inputVideos = [];
