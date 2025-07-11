@@ -1,16 +1,21 @@
 export const PROMPTS = {
-	story: `Write a 2000 character, engaging fictional story suitable for a YouTube narration. 
-    Split the story into sections of some seconds each. 
-    Each section should be part of the ongoing story and keep the audience engaged.
-    Return the result strictly in the following JSON format:
-    
-    {
-    sections: [
-        {"section": "text here", "time": 8},
-        {"section": "text here", "time": 10}, 
-        ...
-    ]}
-    
-    Make sure the output has no explanation or formatting, just valid JSON.
-    `,
+	NORMAL_VIDEO: {
+		HORROR: `
+            Write a 4500-character, dark and atmospheric horror content. 
+            The content should focus on psychological fear, build tension slowly, and include a chilling twist. 
+            It must be written in the first person to feel personal and immersive. You have the liberty to think of anything out of the box as much as you want...
+        `,
+	},
+	SHORT_VIDEO: {
+		HORROR: `
+            Write a dark and atmospheric horror content for a short video for a 1 minute short video. 
+            The content should focus on psychological fear, build tension slowly, and include a chilling twist. 
+            It must be written in the first person to feel personal and immersive. You have the liberty to think of anything out of the box as much as you want...
+        `,
+		DARK_COMEDY: `
+            Write a dark, comedic and thriller content for a short video for a 1 minute short video. 
+            The content should burst anybody into uncontrollable laughter, have a chilling twist. 
+            You have the liberty to think of anything out of the box as much as you want...
+        `,
+	},
 };
