@@ -12,4 +12,4 @@ To run,
 
 - Once complete, run ```npm run start``` and viola! Auto-AI-Video-Generation
 
-- After creating the video, it will put it in a new "data" directory inside
+- After creating the video, it will put it at: "data/videos/'generation_time'.mp4"

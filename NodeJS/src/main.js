@@ -91,7 +91,7 @@ async function run({ prompt, isPortrait, voiceName, languageCode }) {
 		description,
 		tags,
 		isPortrait,
-	};
+	};+
 
 	fs.writeFileSync(
 		path.join(process.cwd(), "data", "videos", `${videoID}.json`),
@@ -102,10 +102,10 @@ async function run({ prompt, isPortrait, voiceName, languageCode }) {
 
 try {
 	await run({
-		prompt: PROMPTS.SHORT_VIDEO.DARK_COMEDY,
+		prompt: PROMPTS.SHORT_VIDEO.HORROR,
 		isPortrait: true,
 		voiceName: "Leda",
-		languageCode: "hi-IN", // en-US | hi-IN
+		languageCode: "en-US", // en-US | hi-IN
 	});
 } catch (error) {
 	console.log(error);
